@@ -1,3 +1,5 @@
+//Delete command when done
+//
 <?php
     $path = "cmd.data";
    $handle = fopen($path,"r");
