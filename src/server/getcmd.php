@@ -1,4 +1,6 @@
 <?php
+//Send command to client
+//
      /* if($_SERVER['REMOTE_ADDR'] !="192.168.1.178"){
       echo("Bad IP!");
       exit;
