@@ -1,5 +1,7 @@
-<?php require "../lcktincl.php";?>
+<?php require "../lcktincl.php"; /*ignore this line*/?> 
 <?php
+//Data for AJAX in UI
+//
     $handle = fopen("lastrequest.time","r");
    $lastreq = intval(fread($handle, filesize("lastrequest.time")));
    $delay = time()-$lastreq;

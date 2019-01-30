@@ -1,8 +1,9 @@
-<?php require "../lcktincl.php";?>
+<?php require "../lcktincl.php";/*ignore this line*/?>
 <?php
-        if(isset($_GET["cmd"])){
-  
-      $path = "cmd.data";
+//Add command on user request
+//
+    if(isset($_GET["cmd"])){
+    $path = "cmd.data";
    $handle = fopen($path,"r");
    $rawcmds = fread($handle, filesize($path))   ;
    fclose($handle);

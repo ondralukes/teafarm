@@ -1,4 +1,6 @@
 <?php
+//Delete command when done
+//
     $path = "cmd.data";
    $handle = fopen($path,"r");
    $rawcmds = fread($handle, filesize($path));
