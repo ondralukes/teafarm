@@ -1,2 +1,3 @@
 # teafarm
-Thing for watering my tea plants
+
+This thing runs on Arduino Mega with Ethernet shield and connects to server through HTTP.
