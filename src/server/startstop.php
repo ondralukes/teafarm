@@ -1,5 +1,7 @@
-<?php require "../lcktincl.php";?>
+<?php require "../lcktincl.php"; /*ignore this line*/?>
 <?php
+//Start or stop server on user request
+//
   if(isset($_GET["state"])){
       $handle = fopen("started.info","w");
       if($_GET["state"] == "0"){
