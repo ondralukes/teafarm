@@ -1,4 +1,6 @@
-<?php require "../lcktincl.php";?>
+//Clean inactivity log
+//
+<?php require "../lcktincl.php";?>    //ignore this line
 <?php
     $path = "inactivity.log";
     unlink($path);
