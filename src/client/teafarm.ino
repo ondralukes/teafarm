@@ -2,40 +2,30 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-
-// assign a MAC address for the ethernet controller.
-// fill in your address here:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-// fill in an available IP address on your network here,
-// for manual configuration:
 IPAddress ip(192, 168, 1, 178);
-
-// fill in your Domain Name Server address here:
 IPAddress myDns(192, 168, 1, 1);
 
-// initialize the library instance:
 EthernetClient client;
 
 char server[] = "www.ondralukes.cz";
-//IPAddress server(192, 168, 1, 137);
-// the "L" is needed to use long type numbers
 char cmd[50];
 char time[50];
 char cmdid[50];
-// čísla pinů pro digitální výstupy
+
+//Pin numbers
 #define ENDSTOP 6
 #define WATER 7
-#define ULONG_MAX 4294967295
 const int in1 =  2;
 const int in2 =  3;
 const int in3 = 4;
 const int in4 = 5;
 
-// proměnná pro nastavení rychlosti,
-// se zvětšujícím se číslem se rychlost zmenšuje
-int rychlost = 1000;
+#define ULONG_MAX 4294967295
+
+int speed = 1000;
 
 int trgpos = 1000;
 unsigned long nextcmdt = 0;
@@ -160,14 +150,13 @@ void executecmd(){
   }
 // this method makes a HTTP connection to the server:
 bool httpRequest() {
-  // close any connection before send a new request.
-  // This will free the socket on the WiFi shield
   char buf[50];
   memset(cmd,0,sizeof(cmd));
   memset(buf,0,sizeof(buf));
   time[0] = '\0';
   cmdid[0] = '\0';
   int msgpart =0;
+  
   // if there's a successful connection:
   Serial.println("connecting");
   if (client.connect(server, 80)) {
@@ -286,54 +275,54 @@ void krok1(){
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok2(){
   digitalWrite(in1, HIGH);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok3(){
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok4(){
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok5(){
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok6(){
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, HIGH);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok7(){
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
 void krok8(){
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
-  delayMicroseconds(rychlost);
+  delayMicroseconds(speed);
 }
