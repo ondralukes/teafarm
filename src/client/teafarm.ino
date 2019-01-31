@@ -42,9 +42,7 @@ void setup() {
   pinMode(WATER, OUTPUT);
   pinMode(ENDSTOP,INPUT_PULLUP);
   delay(1000);
-  // start the Ethernet connection using a fixed IP address and DNS server:
   Ethernet.begin(mac, ip, myDns);
-  // print the Ethernet board/shield's IP address:
   Serial.print("My IP address: ");
   Serial.println(Ethernet.localIP());
   
@@ -112,7 +110,7 @@ void executecmd(){
   int i = 0;
   if(pos == -1){
   while(digitalRead(ENDSTOP) == HIGH){
-    rotaceProtiSmeru();
+    rotateCounterClockwise();
     
     i++;
   }
@@ -128,9 +126,9 @@ void executecmd(){
   Serial.println(trgpos);
   for(int i = 0;i<abs(pos-trgpos);i++){
     if(pos < trgpos){
-     rotacePoSmeru();
+     rotateClockwise();
     } else {
-       rotaceProtiSmeru();
+       rotateCounterClockwise();
       }
     }
     pos = trgpos;
@@ -244,7 +242,7 @@ bool cmddonereq(){
     Serial.println("OK");
     return true;
   }
-void rotacePoSmeru() {
+void rotateClockwise() {
   step1();
   step2();
   step3();
@@ -254,7 +252,7 @@ void rotacePoSmeru() {
   step7();
   step8();
 }
-void rotaceProtiSmeru() {
+void rotateCounterClockwise() {
   step8();
   step7();
   step6();
