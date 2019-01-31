@@ -16,7 +16,7 @@ char time[50];
 char cmdid[50];
 
 //Pin numbers
-#define ENDSTOP 6
+#define ENDSTOP 6   //GND when pressed
 #define WATER 7
 const int in1 =  2;
 const int in2 =  3;
