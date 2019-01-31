@@ -1,10 +1,9 @@
 <?php
 //Send command to client
 //
-     /* if($_SERVER['REMOTE_ADDR'] !="192.168.1.178"){
-      echo("Bad IP!");
-      exit;
-      }  */
+if(!isset($_GET["apikey"])) exit;
+if($_GET["apikey"] != "4aafee89afb5fe37a31895bbff116458") exit;
+
 //register time
        $handle = fopen("lastrequest.time","r");
    $lrt = intval(fread($handle, filesize("lastrequest.time")));
