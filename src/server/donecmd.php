@@ -1,6 +1,8 @@
 <?php
 //Delete command when done
 //
+if(!isset($_GET["apikey"])) exit;
+if($_GET["apikey"] != "4aafee89afb5fe37a31895bbff116458") exit;
     $path = "cmd.data";
    $handle = fopen($path,"r");
    $rawcmds = fread($handle, filesize($path));
