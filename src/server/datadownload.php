@@ -1,4 +1,4 @@
-<?php require "../lcktincl.php"; /*ignore this line*/?> 
+<?php /*require "../lcktincl.php"; ignore this line*/?> 
 <?php
 //Data for AJAX in UI
 //
