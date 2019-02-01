@@ -1,4 +1,3 @@
-<?php /*require "../lcktincl.php"; ignore this line*/?>
 <?php
 //Start or stop server on user request
 //

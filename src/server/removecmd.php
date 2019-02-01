@@ -1,4 +1,3 @@
-<?php /*require "../lcktincl.php";ignore this line*/?>
 <?php
 //Delete command on user request
 //
