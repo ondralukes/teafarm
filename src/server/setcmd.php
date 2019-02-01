@@ -1,4 +1,4 @@
-<?php require "../lcktincl.php";/*ignore this line*/?>
+<?php /*require "../lcktincl.php";ignore this line*/?>
 <?php
 //Add command on user request
 //
