@@ -49,10 +49,10 @@
           var m=[document.getElementById("delayM"),document.getElementById("repeatM")];
           var s=[document.getElementById("delayS"),document.getElementById("repeatS")];
           var t=[document.getElementById("delay"),document.getElementById("repeat")];
-          if(isNaN(h[id].value)){h[id].value="0";}
-          if(isNaN(m[id].value)){m[id].value="0";}
-          if(isNaN(s[id].value)){s[id].value="0";}
-          if(isNaN(t[id].value)){t[id].value="0";}
+          if(isNaN(parseInt(h[id].value))){h[id].value="0";}
+          if(isNaN(parseInt(m[id].value))){m[id].value="0";}
+          if(isNaN(parseInt(s[id].value))){s[id].value="0";}
+          if(isNaN(parseInt(t[id].value))){t[id].value="0";}
           var total = 0;
           if(f==0){
             total = parseInt(h[id].value)*3600 +parseInt(m[id].value)*60+parseInt(s[id].value);
