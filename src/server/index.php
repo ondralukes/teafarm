@@ -21,7 +21,7 @@
       <br>
       ~W(n) - Water n ml
       <br>
-      Command: 
+      Command:
       <br>
          <input type="text" id="cmd">
          <br>
@@ -41,18 +41,18 @@
          <br>
          <input type="text" id="repeat" oninput="updateintimes(1,1)">
             <button onclick="submit()">OK</button>
-            
+
       <script>
         function updateintimes(id,f){
-          
+
           var h=[document.getElementById("delayH"),document.getElementById("repeatH")];
           var m=[document.getElementById("delayM"),document.getElementById("repeatM")];
           var s=[document.getElementById("delayS"),document.getElementById("repeatS")];
           var t=[document.getElementById("delay"),document.getElementById("repeat")];
-          if(isNaN(h[id].value)){h[id].value="0";}
-          if(isNaN(m[id].value)){m[id].value="0";}
-          if(isNaN(s[id].value)){s[id].value="0";}
-          if(isNaN(t[id].value)){t[id].value="0";}
+          if(isNaN(parseInt(h[id].value))){h[id].value="0";}
+          if(isNaN(parseInt(m[id].value))){m[id].value="0";}
+          if(isNaN(parseInt(s[id].value))){s[id].value="0";}
+          if(isNaN(parseInt(t[id].value))){t[id].value="0";}
           var total = 0;
           if(f==0){
             total = parseInt(h[id].value)*3600 +parseInt(m[id].value)*60+parseInt(s[id].value);
@@ -85,7 +85,7 @@ function submit(){
             var start = cmd.indexOf("(");
             var end = cmd.indexOf(")");
             var ml = parseFloat(cmd.substring(start+1,end-start));
-            var ms = Math.floor(((ml+6.5)/3.9)*1000); 
+            var ms = Math.floor(((ml+6.5)/3.9)*1000);
             cmd = cmd.replace("("+ml+")",ms);
           }
 
@@ -97,10 +97,10 @@ function submit(){
       }
       function request(msg){
         var xhttp = new XMLHttpRequest();
-        
+
         xhttp.open("GET", msg, true);
         xhttp.send();
-      }  
+      }
           function loadDoc() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -124,7 +124,7 @@ function submit(){
         document.getElementById("inactivity").innerHTML = "";
       }
       document.getElementById("time").innerHTML = "Offline Time:" + (data.lastseen+"").toHHMMSS();
-      
+
       var i = 0;
       var table = document.getElementById("cmds") ;
       if(data.cmds.length < table.rows.length-1){
