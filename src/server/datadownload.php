@@ -21,10 +21,16 @@
    $rawcmds = fread($handle, filesize($path));
    fclose($handle);
    $cmds = json_decode($rawcmds);
+   $path = "clientdata";
+   $handle = fopen($path,"r");
+   $rawcdata = fread($handle, filesize($path));
+   fclose($handle);
+   $cdata = json_decode($rawcdata);
    $obj = new stdClass();
    $obj->lastseen = $delay;
    $obj->cmds = $cmds;
    $obj->state = $state;
    $obj->iacts = $iacts;
+   $obj->cdata = $cdata;
    echo(json_encode($obj));
 ?>

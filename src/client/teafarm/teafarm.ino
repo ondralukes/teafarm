@@ -39,6 +39,7 @@ char nextcmd[50];
 int nextcmdid = -1;
 void setup() {
   Serial.begin(9600);
+  dht.begin();
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
@@ -164,8 +165,13 @@ bool httpRequest() {
   int msgpart = 0;
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
-  sprintf(datatosend,"temp=%.2f°C;humidity=%.2f%%",temp,humidity);
+  char tempstr[10];
+  char humiditystr[10];
+  dtostrf(temp,4,2,tempstr);
+  dtostrf(humidity,4,2,humiditystr);
+  sprintf(datatosend,"{\"temp\":%s,\"humidity\":%s}",tempstr,humiditystr);
   sprintf(contlength,"Content-Length: %d",strlen(datatosend));
+  Serial.println(datatosend);
   // if there's a successful connection:
   Serial.println("connecting");
   if (client.connect(server, 80)) {
@@ -173,6 +179,7 @@ bool httpRequest() {
     // send the HTTP GET request:
     client.println("POST /teafarmserver/getcmd.php?apikey=4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
     client.println("Host: ondralukes.cz:80");
+    client.println("Content-Type: text/plain");
     client.println("Connection: close");
     client.println(contlength);
     client.println();
@@ -237,7 +244,7 @@ bool cmddonereq() {
     return false;
 
   }
-  client.println("GET /teafarmserver/donecmd.php?apikey4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
+  client.println("GET /teafarmserver/donecmd.php?apikey=4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
   client.println("Host: ondralukes.cz:80");
   client.println("Connection: close");
   client.println();
