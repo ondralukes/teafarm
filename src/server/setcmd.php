@@ -12,6 +12,9 @@
    $cmd->cached=false;
    $cmd->time=time()+$_GET["time"];
    $cmd->repeat = $_GET["repeat"];
+   if(isset($_GET["plantid"])){
+   $cmd->plantid = $_GET["plantid"];
+ }
    for($i = 0;true;$i++){
     $ok = true;
     foreach ($cmds as $value) {
@@ -41,6 +44,7 @@ class cmd
    public $id = 0;
    public $cached = false;
    public $repeat = 0;
+   public $plantid = 0;
 }
 
 ?>

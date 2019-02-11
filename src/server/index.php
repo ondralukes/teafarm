@@ -9,8 +9,10 @@
   <span id="time"></span>
   <br>
   <span id="inactivity" style="background-color: yellow;"></span>
+  <br>
+  <span id="cdata"></span>
   <table id="cmds">
-  <thead><th>Command</th><th>Scheduled time</th><th>Cached</th><th>Repeat</th><th>Cancel</th></thead>
+  <thead><th>Command</th><th>Scheduled time</th><th>Cached</th><th>Repeat</th><th>Plant #</th><th>Cancel</th></thead>
   </table>
       <br><br>
       Enter Command:
@@ -21,7 +23,7 @@
       <br>
       ~W(n) - Water n ml
       <br>
-      Command: 
+      Command:
       <br>
          <input type="text" id="cmd">
          <br>
@@ -40,11 +42,14 @@
          <input type="text" id="repeatS" placeholder="SS" size="2" oninput="updateintimes(1,0)">
          <br>
          <input type="text" id="repeat" oninput="updateintimes(1,1)">
+         <br>
+         Plant #
+         <input type="text" id="plantid">
             <button onclick="submit()">OK</button>
-            
+
       <script>
         function updateintimes(id,f){
-          
+
           var h=[document.getElementById("delayH"),document.getElementById("repeatH")];
           var m=[document.getElementById("delayM"),document.getElementById("repeatM")];
           var s=[document.getElementById("delayS"),document.getElementById("repeatS")];
@@ -85,11 +90,11 @@ function submit(){
             var start = cmd.indexOf("(");
             var end = cmd.indexOf(")");
             var ml = parseFloat(cmd.substring(start+1,end-start));
-            var ms = Math.floor(((ml+6.5)/3.9)*1000); 
+            var ms = Math.floor(((ml+6.5)/3.9)*1000);
             cmd = cmd.replace("("+ml+")",ms);
           }
 
-          request("setcmd.php?cmd=" + cmd +"&time="+document.getElementById("delay").value+"&repeat="+document.getElementById("repeat").value);
+          request("setcmd.php?cmd=" + cmd +"&time="+document.getElementById("delay").value+"&repeat="+document.getElementById("repeat").value+"&plantid=" + document.getElementById("plantid").value);
           document.getElementById("cmd").value = "";
 }
       function main(){
@@ -97,10 +102,10 @@ function submit(){
       }
       function request(msg){
         var xhttp = new XMLHttpRequest();
-        
+
         xhttp.open("GET", msg, true);
         xhttp.send();
-      }  
+      }
           function loadDoc() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -124,7 +129,7 @@ function submit(){
         document.getElementById("inactivity").innerHTML = "";
       }
       document.getElementById("time").innerHTML = "Offline Time:" + (data.lastseen+"").toHHMMSS();
-      
+
       var i = 0;
       var table = document.getElementById("cmds") ;
       if(data.cmds.length < table.rows.length-1){
@@ -140,11 +145,12 @@ function submit(){
       table.rows[i+1].insertCell(2);
       table.rows[i+1].insertCell(3);
       table.rows[i+1].insertCell(4);
+      table.rows[i+1].insertCell(5);
       }
       if(data.state){
-        table.rows[i+1].cells[4].innerHTML = "<button disabled>Cancel</button>";
+        table.rows[i+1].cells[5].innerHTML = "<button disabled>Cancel</button>";
       } else {
-        table.rows[i+1].cells[4].innerHTML = "<button onclick=\"request('removecmd.php?id="+i+"')\">Cancel</button>";
+        table.rows[i+1].cells[5].innerHTML = "<button onclick=\"request('removecmd.php?id="+i+"')\">Cancel</button>";
       }
       if(data.cmds[i].repeat==0){
         table.rows[i+1].cells[3].innerHTML = "NO";
@@ -156,6 +162,12 @@ function submit(){
       } else {
         table.rows[i+1].cells[2].innerHTML = "NO";
       }
+      if(typeof data.cmds[i].plantid !== 'undefined'){
+      table.rows[i+1].cells[4].innerHTML = data.cmds[i].plantid;
+      } else {
+      table.rows[i+1].cells[4].innerHTML = "N/A";
+      }
+      console.log(data);
       table.rows[i+1].cells[0].innerHTML = data.cmds[i].value;
       var date = new Date();
       date.setTime(data.cmds[i].time*1000);
@@ -168,6 +180,7 @@ function submit(){
        document.getElementById("state").innerHTML = "STOPPED<br><button onclick=\"request('startstop.php?state=1')\">START</button>";
        document.body.style.backgroundColor = "red";
      }
+     document.getElementById("cdata").innerHTML = "Temperature:" + data.cdata.temp + "°C<br>Humidity:" + data.cdata.humidity+"%";
     }
   };
   xhttp.open("GET", "datadownload.php", true);

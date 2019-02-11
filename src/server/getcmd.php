@@ -3,7 +3,10 @@
 //
 if(!isset($_GET["apikey"])) exit;
 if($_GET["apikey"] != "4aafee89afb5fe37a31895bbff116458") exit;
-
+$inputraw = file_get_contents('php://input');
+$handle = fopen("clientdata","w");
+fwrite($handle, file_get_contents('php://input'));
+fclose($handle);
 //register time
        $handle = fopen("lastrequest.time","r");
    $lrt = intval(fread($handle, filesize("lastrequest.time")));
@@ -32,8 +35,8 @@ if($_GET["apikey"] != "4aafee89afb5fe37a31895bbff116458") exit;
      exit;
    }
     fclose($handle);
-    
-    
+
+
 $path = "cmd.data";
    $handle = fopen($path,"r");
    $rawcmds = fread($handle, filesize($path));

@@ -1,6 +1,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include "DHT.h"
 
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
@@ -18,12 +19,16 @@ char cmdid[50];
 //Pin numbers
 #define ENDSTOP 6   //GND when pressed
 #define WATER 7
+#define DHTPIN 8
 const int in1 =  2;
 const int in2 =  3;
 const int in3 = 4;
 const int in4 = 5;
 
+
 #define ULONG_MAX 4294967295
+
+DHT dht(DHTPIN, DHT22);
 
 int speed = 1000;
 
@@ -34,170 +39,186 @@ char nextcmd[50];
 int nextcmdid = -1;
 void setup() {
   Serial.begin(9600);
+  dht.begin();
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
   pinMode(WATER, OUTPUT);
-  pinMode(ENDSTOP,INPUT_PULLUP);
+  pinMode(ENDSTOP, INPUT_PULLUP);
   delay(1000);
   Ethernet.begin(mac, ip, myDns);
   Serial.print("My IP address: ");
   Serial.println(Ethernet.localIP());
-  
+
 }
 int pos = -1;
 bool httpRequest();
 void loop() {
-  if(httpRequest()){
-    if(strlen(cmd) > 0){
-      if(atoi(cmdid)==nextcmdid){
-      Serial.println("Command already cached");
+  if (httpRequest()) {
+    if (strlen(cmd) > 0) {
+      if (atoi(cmdid) == nextcmdid) {
+        Serial.println("Command already cached");
       } else {
-        if(nextcmdid == -1){
-        Serial.println("Caching command");
+        if (nextcmdid == -1) {
+          Serial.println("Caching command");
         } else {
           Serial.println("Overwriting cached command");
-          }
- nextcmdt = strtoul(time,NULL,10)*1000;
- nextcmdtstart = millis();
- strcpy(nextcmd,cmd);
-nextcmdid=atoi(cmdid);
+        }
+        nextcmdt = strtoul(time, NULL, 10) * 1000;
+        nextcmdtstart = millis();
+        strcpy(nextcmd, cmd);
+        nextcmdid = atoi(cmdid);
       }
     } else {
       Serial.print("Forgetting position");
       pos = -1;
-      }
-  }
-  if(nextcmdid != -1){
-    if(timeup(nextcmdtstart,nextcmdt)){
-      nextcmdid = -1; 
-       Serial.print("Executing cached command:");
-       Serial.println(nextcmd);
-       while(!cmddonereq());
-       executecmd();
-      }
     }
- delay(5000);
+  }
+  if (nextcmdid != -1) {
+    if (timeup(nextcmdtstart, nextcmdt)) {
+      nextcmdid = -1;
+      Serial.print("Executing cached command:");
+      Serial.println(nextcmd);
+      while (!cmddonereq());
+      executecmd();
+    }
+  }
+  delay(5000);
 }
-bool timeup(unsigned long f,unsigned long d){
-   if(f > millis()){
-     if(millis()+(ULONG_MAX - f) >= d) return true;
-   } else if(millis()-f >=d) return true;
+bool timeup(unsigned long f, unsigned long d) {
+  if (f > millis()) {
+    if (millis() + (ULONG_MAX - f) >= d) return true;
+  } else if (millis() - f >= d) return true;
   return false;
 }
-void executecmd(){
+void executecmd() {
   Serial.print("Executing ");
   Serial.println(cmd);
   char *token;
-   
-   /* get the first token */
-   token = strtok(cmd, "~");
-   
-   /* walk through other tokens */
-   while(true) {
-      Serial.println(token);
-    
-     
-   char tmpcmd[50];
-   strcpy(tmpcmd,token);
-    if(tmpcmd[0] == 'M'){
- int trgpos = atoi(&tmpcmd[1]);
- Serial.println("Received MOVE Command");
- Serial.println(trgpos);
- if(trgpos != pos){
-  int i = 0;
-  if(pos == -1){
-  while(digitalRead(ENDSTOP) == HIGH){
-    rotateCounterClockwise();
-    
-    i++;
-  }
-  pos = 0;
-  Serial.print("Position was ");
-  Serial.println(i);
-  } else {
-    Serial.print("Position was ");
-  Serial.println(pos);
-    }
-  
-  Serial.print("Going to ");
-  Serial.println(trgpos);
-  for(int i = 0;i<abs(pos-trgpos);i++){
-    if(pos < trgpos){
-     rotateClockwise();
-    } else {
-       rotateCounterClockwise();
+
+  /* get the first token */
+  token = strtok(cmd, "~");
+
+  /* walk through other tokens */
+  while (true) {
+    Serial.println(token);
+
+
+    char tmpcmd[50];
+    strcpy(tmpcmd, token);
+    if (tmpcmd[0] == 'M') {
+      int trgpos = atoi(&tmpcmd[1]);
+      Serial.println("Received MOVE Command");
+      Serial.println(trgpos);
+      if (trgpos != pos) {
+        int i = 0;
+        if (pos == -1) {
+          while (digitalRead(ENDSTOP) == HIGH) {
+            rotateCounterClockwise();
+
+            i++;
+          }
+          pos = 0;
+          Serial.print("Position was ");
+          Serial.println(i);
+        } else {
+          Serial.print("Position was ");
+          Serial.println(pos);
+        }
+
+        Serial.print("Going to ");
+        Serial.println(trgpos);
+        for (int i = 0; i < abs(pos - trgpos); i++) {
+          if (pos < trgpos) {
+            rotateClockwise();
+          } else {
+            rotateCounterClockwise();
+          }
+        }
+        pos = trgpos;
+        moff();
       }
+    } else if (tmpcmd[0] == 'W') {
+      Serial.println("Received WATER Command");
+      int t = atoi(&tmpcmd[1]);
+      Serial.println(t);
+      digitalWrite(WATER, HIGH);
+      delay(t);
+      digitalWrite(WATER, LOW);
     }
-    pos = trgpos;
-    moff();
+    if (token == NULL) break;
+    token = strtok(NULL, "~");
   }
- } else if(tmpcmd[0] == 'W'){
-  Serial.println("Received WATER Command");
-  int t = atoi(&tmpcmd[1]);
- Serial.println(t);
- digitalWrite(WATER,HIGH);
- delay(t);
- digitalWrite(WATER,LOW);
-  }
-  if(token == NULL) break;
-   token = strtok(NULL, "~");
-   }
-  }
+}
 // this method makes a HTTP connection to the server:
 bool httpRequest() {
   char buf[50];
-  memset(cmd,0,sizeof(cmd));
-  memset(buf,0,sizeof(buf));
+  char datatosend[128];
+  char contlength[128];
+  memset(datatosend,0,sizeof(datatosend));
+  memset(contlength,0,sizeof(contlength));
+  memset(cmd, 0, sizeof(cmd));
+  memset(buf, 0, sizeof(buf));
   time[0] = '\0';
   cmdid[0] = '\0';
-  int msgpart =0;
-  
+  int msgpart = 0;
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  char tempstr[10];
+  char humiditystr[10];
+  dtostrf(temp,4,2,tempstr);
+  dtostrf(humidity,4,2,humiditystr);
+  sprintf(datatosend,"{\"temp\":%s,\"humidity\":%s}",tempstr,humiditystr);
+  sprintf(contlength,"Content-Length: %d",strlen(datatosend));
+  Serial.println(datatosend);
   // if there's a successful connection:
   Serial.println("connecting");
   if (client.connect(server, 80)) {
-    
+
     // send the HTTP GET request:
-    client.println("GET /teafarmserver/getcmd.php?apikey=4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
+    client.println("POST /teafarmserver/getcmd.php?apikey=4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
     client.println("Host: ondralukes.cz:80");
+    client.println("Content-Type: text/plain");
     client.println("Connection: close");
+    client.println(contlength);
     client.println();
+    client.println(datatosend);
     int t = 0;
     int i = 0;
     bool started = false;
-    while(t < 100){
+    while (t < 100) {
       if (client.available()) {
-    char c = client.read();
-    Serial.write(c);
-    if(c == '>'){
-      buf[i] = '\0';
-      if(msgpart==0){
-        strcpy(cmd,buf);
-        } else if(msgpart == 1){
-          strcpy(time,buf);
-          }else if(msgpart == 2){
-          strcpy(cmdid,buf);
+        char c = client.read();
+        Serial.write(c);
+        if (c == '>') {
+          buf[i] = '\0';
+          if (msgpart == 0) {
+            strcpy(cmd, buf);
+          } else if (msgpart == 1) {
+            strcpy(time, buf);
+          } else if (msgpart == 2) {
+            strcpy(cmdid, buf);
           }
-          i=0;
-        msgpart++;
-        started = false;
-        if(msgpart==3) break;
+          i = 0;
+          msgpart++;
+          started = false;
+          if (msgpart == 3) break;
+        }
+        if (started == true) {
+          buf[i] = c;
+          i++;
+        }
+        if (c == '<') {
+          started = true;
+        }
+
+      } else {
+        t++;
+        delay(10);
       }
-    if(started == true){
-    buf[i] = c;
-    i++;
     }
-    if(c == '<'){
-      started = true;
-      }
-    
-   }else{
-   t++;
-   delay(10);
-   }
-  }
-     
+
     Serial.print("RX: CMD:");
     Serial.print(cmd);
     Serial.print(" TIME:");
@@ -211,35 +232,35 @@ bool httpRequest() {
     client.stop();
     return false;
   }
-  
-   
+
+
 }
-bool cmddonereq(){
+bool cmddonereq() {
   Serial.print("Sending DONE...");
   bool ok = client.connect(server, 80);
-  if(!ok){
+  if (!ok) {
     client.stop();
     Serial.println("FAILED");
     return false;
-    
-    }
-  client.println("GET /teafarmserver/donecmd.php?apikey4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
-    client.println("Host: ondralukes.cz:80");
-    client.println("Connection: close");
-    client.println();
-    int t = 0;
-    while(t < 100){
-      if (client.available()) {
-    client.read();
-    break;
-      }
-   t++;
-   delay(10);
-   }
-    client.stop();
-    Serial.println("OK");
-    return true;
+
   }
+  client.println("GET /teafarmserver/donecmd.php?apikey=4aafee89afb5fe37a31895bbff116458 HTTP/1.1");
+  client.println("Host: ondralukes.cz:80");
+  client.println("Connection: close");
+  client.println();
+  int t = 0;
+  while (t < 100) {
+    if (client.available()) {
+      client.read();
+      break;
+    }
+    t++;
+    delay(10);
+  }
+  client.stop();
+  Serial.println("OK");
+  return true;
+}
 void rotateClockwise() {
   step1();
   step2();
@@ -260,62 +281,62 @@ void rotateCounterClockwise() {
   step2();
   step1();
 }
-void moff(){
-   digitalWrite(in1, LOW);
+void moff() {
+  digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
-  }
-void step1(){
+}
+void step1() {
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
   delayMicroseconds(speed);
 }
-void step2(){
+void step2() {
   digitalWrite(in1, HIGH);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
   delayMicroseconds(speed);
 }
-void step3(){
+void step3() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
   delayMicroseconds(speed);
 }
-void step4(){
+void step4() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
   delayMicroseconds(speed);
 }
-void step5(){
+void step5() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
   delayMicroseconds(speed);
 }
-void step6(){
+void step6() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
   digitalWrite(in4, HIGH);
   delayMicroseconds(speed);
 }
-void step7(){
+void step7() {
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
   delayMicroseconds(speed);
 }
-void step8(){
+void step8() {
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
